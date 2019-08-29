@@ -6,35 +6,32 @@ use warnings;
 use JSON;
 use Test::More;
 use IO::Socket::INET;
-use Selenium::Remote::Driver 0.2102;
+use Selenium::Remote::Driver 1.33;
 use Selenium::UserAgent;
 
 my @browsers = qw/chrome firefox/;
 @browsers = qw/chrome/;
 
 my @agents = qw/
-                          iphone5
-                          iphone6
-                          iphone6plus
-                          ipad
-                          ipad_mini
-                          ipad_pro_12_9
-                          galaxy_s3
-                          galaxy_s5
-                          galaxy_note3
-                          nexus4
-                          nexus10
-/;
-=cut
-                          ipad_pro_10_5
-                          iphone_x
-                          iphone_xr
-                          iphone_xs_max
-                          galaxy_s4
-=cut
+	iphone5
+	iphone6
+	iphone6plus
+	ipad
+	ipad_mini
+	ipad_pro_12_9
+	galaxy_s3
+	galaxy_s5
+	galaxy_note3
+	nexus4
+	nexus10
+	ipad_pro_10_5
+	iphone_x
+	iphone_xr
+	iphone_xs_max
+	galaxy_s4
+	/;
 
 my @orientations = qw/portrait landscape/;
-@orientations = qw/portrait/;
 
 # my @browsers = qw/firefox/;
 # my @agents = qw/iphone/;

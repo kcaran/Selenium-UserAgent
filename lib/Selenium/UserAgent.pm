@@ -204,18 +204,29 @@ has _chrome_options => (
     builder => sub {
         my ($self) = @_;
 
+        my $chrome_device = $self->_agent_to_chrome;
+        my $mobile_emulation;
+        if (!$chrome_device || $self->{ orientation } eq 'landscape') {
+        # For landscape, we have to manually set the size
         my $size = $self->_get_size;
-        my $window_size = $size->{width} . ',' . $size->{height};
+        $mobile_emulation = { deviceMetrics => {
+			width => +$size->{ width } * 1,
+			height => +$size->{ height } * 1,
+			pixelRatio => +$size->{ pixel_ratio } * 1,
+        	},
+            userAgent => $self->_get_user_agent,
+        };
+        }
+        else {
+        $mobile_emulation = { deviceName => $chrome_device };
+        }
 
         return {
             'goog:chromeOptions' => {
                 args => [
-                    'use-mobile-user-agent=' . $self->_get_user_agent,
                     'user-agent=' . $self->_get_user_agent,
                 ],
-                mobileEmulation => {
-                    deviceName => $self->_agent_to_chrome
-                }
+                mobileEmulation => $mobile_emulation,
             }
         }
     }
