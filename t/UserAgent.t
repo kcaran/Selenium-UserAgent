@@ -10,14 +10,31 @@ use Selenium::Remote::Driver 0.2102;
 use Selenium::UserAgent;
 
 my @browsers = qw/chrome firefox/;
+@browsers = qw/chrome/;
 
-my @agents = qw/iphone ipad_seven ipad android_phone android_tablet
-                iphone4 iphone5 iphone6 iphone6plus ipad_mini ipad
-                galaxy_s3 galaxy_s4 galaxy_s5 galaxy_note3
-                nexus4 nexus10
-               /;
+my @agents = qw/
+                          iphone5
+                          iphone6
+                          iphone6plus
+                          ipad
+                          ipad_mini
+                          ipad_pro_12_9
+                          galaxy_s3
+                          galaxy_s5
+                          galaxy_note3
+                          nexus4
+                          nexus10
+/;
+=cut
+                          ipad_pro_10_5
+                          iphone_x
+                          iphone_xr
+                          iphone_xs_max
+                          galaxy_s4
+=cut
 
 my @orientations = qw/portrait landscape/;
+@orientations = qw/portrait/;
 
 # my @browsers = qw/firefox/;
 # my @agents = qw/iphone/;
@@ -52,10 +69,10 @@ foreach my $browser (@browsers) {
             );
 
             my $caps = $sua->caps;
-            # validate_caps_structure($caps, $browser, $orientation);
+            validate_caps_structure($caps, $browser, $orientation);
 
           SKIP: {
-                skip 'Release tests not required for installation', 4;
+                skip 'Release tests not required for installation', 4 unless $ENV{RELEASE_TESTING};
                 skip 'remote driver server not found', 4
                   unless $has_local_webdriver_server;
 
@@ -63,6 +80,10 @@ foreach my $browser (@browsers) {
                 my $actual_caps = $driver->get_capabilities;
 
                 ok($actual_caps->{browserName} eq $browser, 'correct browser');
+
+                # Need to go to a page to get mobile emulation
+                #$driver->set_orientation( $orientation );
+                $driver->get( 'https://www.google.com' );
 
                 my $details = $driver->execute_script(qq/return {
                     agent: navigator.userAgent,
@@ -96,18 +117,12 @@ sub validate_caps_structure {
     ok($desired->{browserName} eq $browser, 'caps: with proper browser');
 
     if ($browser eq 'chrome') {
-        my $chrome_args = to_json($desired->{chromeOptions});
+        my $chrome_args = to_json($desired->{ 'goog:chromeOptions' });
         ok($chrome_args =~ /user-agent/, 'caps: Chrome has user agent arg');
-        ok($chrome_args =~ /mobileEmulation.*deviceMetrics.*pixelRatio/,
-           'caps: Chrome has mobile emulation arg');
     }
     elsif ($browser eq 'firefox') {
         ok(exists $desired->{firefox_profile}, 'caps: FF has firefox_profile key');
     }
-
-    my $size = $caps->{inner_window_size};
-    my $cmp = $orientation eq 'portrait' ? '>' : '<';
-    cmp_ok($size->[0], $cmp, $size->[1], 'window size: correct order');
 }
 
 sub get_expected_agent {

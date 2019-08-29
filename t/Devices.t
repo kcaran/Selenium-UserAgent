@@ -1,6 +1,5 @@
 use JSON;
 use LWP::UserAgent;
-use Net::SSL;
 use Selenium::UserAgent;
 use Test::Spec;
 
@@ -18,18 +17,18 @@ describe 'Device information' => sub {
     my $expected_tablets = $devices->{tablets};
 
     my $phones = {
-        iphone4 => 'Apple iPhone 4',
-        iphone5 => 'Apple iPhone 5',
-        iphone6 => 'Apple iPhone 6',
-        iphone6plus => 'Apple iPhone 6 Plus',
-        galaxy_s3 => 'Samsung Galaxy S3',
-        galaxy_s4 => 'Samsung Galaxy S4',
-        galaxy_s5 => 'Samsung Galaxy S5',
-        nexus4 => 'Google Nexus 4',
-
-        # for this tablet, the height/width is provided in portrait
-        # mode
-        galaxy_note3 => 'Samsung Galaxy Note 3'
+#       iphone4 => 'Apple iPhone 4',
+        iphone5 => 'iPhone 5/SE',
+        iphone6 => 'iPhone 6/7/8',
+        iphone6plus => 'iPhone 6/7/8 Plus',
+        iphone_x => 'iPhone X/XS',
+        iphone_xr => 'iPhone XR',
+        iphone_xs_max => 'iPhone XS Max',
+#       galaxy_s3 => 'Samsung Galaxy S3',
+#       galaxy_s4 => 'Samsung Galaxy S4',
+        galaxy_s5 => 'Galaxy S5',
+        galaxy_note3 => 'Galaxy Note 3',
+#       nexus4 => 'Google Nexus 4',
     };
 
     my $actual = get_actual_phones();
@@ -56,12 +55,12 @@ describe 'Device information' => sub {
     };
 
     describe 'tablets' => sub {
-        # the default height/width for (some) tablets is given in
-        # landscape mode in Mozilla's devices.json
         my $tablets = {
-            ipad_mini => 'Apple iPad Mini',
-            ipad => 'Apple iPad',
-            nexus10 => 'Google Nexus 10'
+            ipad => 'iPad',
+			ipad_mini => 'iPad Mini',
+            ipad_pro_10_5 => 'iPad Pro (10.5-inch)',
+            ipad_pro_12_9 => 'iPad Pro (12.9-inch)',
+            nexus10 => 'Nexus 10'
         };
 
         foreach my $name (keys %$tablets) {
@@ -70,11 +69,11 @@ describe 'Device information' => sub {
             my $expected = $details[0];
 
             it 'should match width for ' . $name => sub {
-                is($actual->{$name}->{landscape}->{width}, $expected->{width});
+                is($actual->{$name}->{portrait}->{width}, $expected->{width});
             };
 
             it 'should match height for ' . $name => sub {
-                is($actual->{$name}->{landscape}->{height}, $expected->{height});
+                is($actual->{$name}->{portrait}->{height}, $expected->{height});
             };
 
             it 'should match pixel ratio for ' . $name => sub {

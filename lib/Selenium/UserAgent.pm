@@ -65,8 +65,13 @@ are:
     iphone5
     iphone6
     iphone6plus
-    ipad_mini
+    iphone_x
+    iphone_xr
+    iphone_xs_max
     ipad
+    ipad_mini
+    ipad_pro_10_5
+    ipad_pro_12_9
     galaxy_s3
     galaxy_s4
     galaxy_s5
@@ -110,8 +115,13 @@ has agent => (
                           iphone5
                           iphone6
                           iphone6plus
-                          ipad_mini
+                          iphone_x
+                          iphone_xr
+                          iphone_xs_max
                           ipad
+                          ipad_mini
+                          ipad_pro_10_5
+                          ipad_pro_12_9
                           galaxy_s3
                           galaxy_s4
                           galaxy_s5
@@ -198,8 +208,9 @@ has _chrome_options => (
         my $window_size = $size->{width} . ',' . $size->{height};
 
         return {
-            chromeOptions => {
+            'goog:chromeOptions' => {
                 args => [
+                    'use-mobile-user-agent=' . $self->_get_user_agent,
                     'user-agent=' . $self->_get_user_agent,
                 ],
                 mobileEmulation => {
@@ -327,22 +338,25 @@ sub _is_chrome {
     return shift->browserName =~ /chrome/i
 }
 
+# https://codesearch.chromium.org/chromium/src/third_party/blink/renderer/devtools/front_end/emulated_devices/module.json
+
 sub _agent_to_chrome {
     my ($self) = @_;
 
     my $map = {
         iphone4 => 'iPhone 4',
-        iphone5 => 'iPhone 5',
-        iphone6 => 'iPhone 6',
-        iphone6plus => 'iPhone 6 Plus',
-        ipad_mini => 'iPad Mini',
-        ipad => 'iPad',
+        iphone5 => 'iPhone 5/SE',
+        iphone6 => 'iPhone 6/7/8',
+        iphone6plus => 'iPhone 6/7/8 Plus',
+        iphone_x => 'iPhone X',
+        nexus4 => 'Nexus 4',
         galaxy_s3 => 'Galaxy S III',
         galaxy_s5 => 'Galaxy S5',
-        galaxy_note3 => 'Galaxy Note 3',
-        nexus4 => 'Nexus 4',
-        nexus9 => 'Nexus 10',
+        ipad_mini => 'iPad Mini',
+        ipad => 'iPad',
+        ipad_pro_12_9 => 'iPad Pro',
         nexus10 => 'Nexus 10',
+        galaxy_note3 => 'Galaxy Note 3',
         iphone         => 'iPhone 4',
         ipad_seven     => 'iPad',
         android_phone  => 'Nexus 4',
