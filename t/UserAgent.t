@@ -9,8 +9,9 @@ use IO::Socket::INET;
 use Selenium::Remote::Driver 1.33;
 use Selenium::UserAgent;
 
+my $port = 4444;
+
 my @browsers = qw/chrome firefox/;
-@browsers = qw/chrome/;
 
 my @agents = qw/
 	iphone5
@@ -18,13 +19,13 @@ my @agents = qw/
 	iphone6plus
 	ipad
 	ipad_mini
-	ipad_pro_12_9
 	galaxy_s3
 	galaxy_s5
 	galaxy_note3
 	nexus4
 	nexus10
 	ipad_pro_10_5
+	ipad_pro_12_9
 	iphone_x
 	iphone_xr
 	iphone_xs_max
@@ -33,20 +34,20 @@ my @agents = qw/
 
 my @orientations = qw/portrait landscape/;
 
-# my @browsers = qw/firefox/;
-# my @agents = qw/iphone/;
-# my @orientations = qw/landscape/;
+#@browsers = qw/firefox/;
+#@agents = qw/iphone_x/;
+#@orientations = qw/landscape/;
 
 my $has_local_webdriver_server = IO::Socket::INET->new(
     PeerAddr => 'localhost',
-    PeerPort => 4444,
+    PeerPort => $port,
     Timeout => 5
 );
 
 UNENCODED: {
     my $sua = Selenium::UserAgent->new(
         browserName => 'firefox',
-        agent => 'iphone'
+        agent => 'iphone5'
     );
 
     my $caps = $sua->caps(unencoded => 1);
@@ -66,6 +67,7 @@ foreach my $browser (@browsers) {
             );
 
             my $caps = $sua->caps;
+            $caps->{ port } = $port;
             validate_caps_structure($caps, $browser, $orientation);
 
           SKIP: {
@@ -79,7 +81,6 @@ foreach my $browser (@browsers) {
                 ok($actual_caps->{browserName} eq $browser, 'correct browser');
 
                 # Need to go to a page to get mobile emulation
-                #$driver->set_orientation( $orientation );
                 $driver->get( 'https://www.google.com' );
 
                 my $details = $driver->execute_script(qq/return {
@@ -90,12 +91,6 @@ foreach my $browser (@browsers) {
 
                 my $expected_agent = get_expected_agent( $agent );
                 my $expected_width = $sua->_get_size->{width};
-                if ($expected_width < 335 && $browser eq 'firefox') {
-                    # Firefox doesn't get any smaller than 335,
-                    # but some device resolutions ask for 320. We
-                    # have to compensate a little in the tests.
-                    $expected_width = 335;
-                }
                 cmp_ok($details->{agent} , '=~', $expected_agent, 'user agent includes ' . $agent);
                 cmp_ok($details->{width} , '==', $expected_width, 'width is correct.');
                 cmp_ok($details->{height}, '==', $sua->_get_size->{height} , 'height is correct.');

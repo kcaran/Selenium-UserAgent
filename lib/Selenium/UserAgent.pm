@@ -185,11 +185,9 @@ has _firefox_options => (
     builder => sub {
         my ($self) = @_;
 
-        my $dim = $self->_get_size;
-
         my $profile = Selenium::Firefox::Profile->new;
         $profile->set_preference(
-            'general.useragent.override' => $self->_get_user_agent
+            'general.useragent.override' => $self->_get_user_agent,
         );
 
         return {
@@ -206,9 +204,9 @@ has _chrome_options => (
 
         my $chrome_device = $self->_agent_to_chrome;
         my $mobile_emulation;
+        my $size = $self->_get_size;
         if (!$chrome_device || $self->{ orientation } eq 'landscape') {
         # For landscape, we have to manually set the size
-        my $size = $self->_get_size;
         $mobile_emulation = { deviceMetrics => {
 			width => +$size->{ width } * 1,
 			height => +$size->{ height } * 1,
@@ -259,10 +257,6 @@ hashref with the following keys:
 
 =over 4
 
-=item inner_window_size
-
-This will set the window size immediately after browser creation.
-
 =item desired_capabilities
 
 This will set the browserName and the appropriate options needed.
@@ -278,15 +272,18 @@ as the argument to this function.
 sub caps {
     my ($self, %args) = @_;
 
-    my $options = $self->_desired_options(%args);
+    my $caps;
+    $caps->{ browserName } = $self->browserName;
 
-    return {
-        # inner_window_size => $self->_get_size_for('caps'),
-        desired_capabilities => {
-            browserName => $self->browserName,
-            %$options
-        }
-    };
+    if ($self->browserName eq 'firefox') {
+      my $size = $self->_get_size;
+      $caps->{ inner_window_size } = [ $size->{ height }, $size->{ width } ];
+     }
+
+    $caps->{ desired_capabilities } = $self->_desired_options(%args);
+    $caps->{ desired_capabilities }{ browserName } = $self->browserName;
+
+    return $caps;
 }
 
 sub _desired_options {
@@ -327,18 +324,6 @@ sub _get_size {
     $size->{pixel_ratio} = $specs->{$agent}->{pixel_ratio};
 
     return $size;
-}
-
-sub _get_size_for {
-    my ($self, $format) = @_;
-    my $dim = $self->_get_size;
-
-    if ($format eq 'caps') {
-        return [ $dim->{height}, $dim->{width} ];
-    }
-    elsif ($format eq 'chrome') {
-        return $dim->{width} . ',' . $dim->{height};
-    }
 }
 
 sub _is_firefox {
